@@ -601,6 +601,7 @@
               <button id="menu-twitter" class="login-btn">Bonus X (+1500 monedas)</button>
               <button id="menu-twitch" class="login-btn">Bonus Twitch (+1500 monedas)</button>
               <button id="menu-creators" class="login-btn">Canjear código de creador</button>
+              <button id="menu-discord-login" class="login-btn">Iniciar sesión con Discord</button>
             </div>
           </div>
         `;
@@ -610,8 +611,18 @@
         document.getElementById("menu-twitter")?.addEventListener("click", handleTwitterBonus);
         document.getElementById("menu-twitch")?.addEventListener("click", handleTwitchBonus);
         document.getElementById("menu-creators")?.addEventListener("click", openCreatorCodeModal);
+        document.getElementById("menu-discord-login")?.addEventListener("click", discordLogin);
       }
 
+      // AÑADIDO: Función para iniciar el proceso de inicio de sesión con Discord
+      function discordLogin() {
+        const clientId = '1410230113852850317';
+        const redirectUri = encodeURIComponent('https://betaqueensleaguealbum.netlify.app/callback');
+        const discordUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&scope=identify&redirect_uri=${redirectUri}`;
+        
+        window.location.href = discordUrl;
+      }
+      
       function renderPacksPage() {
         mainContent.innerHTML = `
           <h2 style="margin:0 0 .4rem 0;">Abrir Sobres</h2>
@@ -894,4 +905,3 @@
   </script>
 </body>
 </html>
-
