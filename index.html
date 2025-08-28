@@ -32,6 +32,10 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       line-height:1.4;
+      /* Cambios para centrar el contenido y el footer */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     /* HEADER */
@@ -76,7 +80,7 @@
     /* MAIN */
     #main-content{ 
       max-width: var(--max-width); 
-      margin: 3rem auto; /* Aumentado para crear el espacio */
+      margin: auto; /* Centrado vertical y horizontalmente */
       padding: 1rem; 
       background: transparent; /* Fondo transparente */
       color: var(--white); /* Color del texto blanco */
@@ -84,6 +88,7 @@
       box-shadow: none; /* Sin sombra */
       min-height: 0; 
       overflow: visible; 
+      flex-grow: 1; /* Esto hace que el main crezca y empuje el footer hacia abajo */
     }
     
     #main-content h2 {
@@ -175,7 +180,7 @@
       }
       #main-content {
         padding: 0.8rem;
-        margin: 0.8rem auto;
+        margin: auto; /* Centrado en móviles también */
       }
       .album-grid, .packs-grid {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Más pequeñas para móviles */
@@ -240,7 +245,7 @@
       }
       #main-content {
         padding: 0.6rem;
-        margin: 0.6rem auto;
+        margin: auto; /* Centrado en móviles también */
       }
       .album-grid, .packs-grid {
         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Aún más pequeños para adaptarse */
