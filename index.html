@@ -32,8 +32,6 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       line-height:1.4;
-      display: flex;
-      flex-direction: column;
     }
 
     /* HEADER */
@@ -78,20 +76,14 @@
     /* MAIN */
     #main-content{ 
       max-width: var(--max-width); 
-      margin: 1rem auto; 
+      margin: 3rem auto; /* Aumentado para crear el espacio */
       padding: 1rem; 
       background: transparent; /* Fondo transparente */
       color: var(--white); /* Color del texto blanco */
       border-radius: var(--radius); 
       box-shadow: none; /* Sin sombra */
       min-height: 0; 
-      overflow: visible;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+      overflow: visible; 
     }
     
     #main-content h2 {
@@ -102,15 +94,7 @@
       color: var(--white);
     }
 
-    .menu-principal { 
-      display:flex; 
-      flex-direction:column; 
-      gap:0.9rem; 
-      align-items:center; 
-      padding: 0.25rem; 
-      max-width: 500px;
-      margin: auto;
-    }
+    .menu-principal { display:flex; flex-direction:column; gap:0.9rem; align-items:center; padding: 0.25rem; }
     .actions { display:flex; gap:0.6rem; flex-wrap:wrap; justify-content:center; }
     .login-btn { background: var(--accent); color: var(--accent-text); border: none; padding: .6rem .9rem; border-radius: 8px; cursor: pointer; font-weight:700; }
 
@@ -147,10 +131,7 @@
 
     #notificacion { position: fixed; top: 28px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--accent-text); padding: 10px 20px; border-radius: 12px; font-weight:800; z-index: 2000; display:none; }
 
-    footer { 
-      margin-top: auto; 
-      padding-top: 1rem; 
-    }
+    footer { margin-top: 1rem; }
     .footer-content { display:flex; justify-content:center; gap: 0.6rem; align-items:center; padding: 0.9rem 1rem; color: var(--accent); background: transparent; border-top: 1px solid rgba(6,204,189,0.06); border-radius: 6px; }
 
     /* MEDIA QUERIES para responsividad */
@@ -963,5 +944,3 @@
   </script>
 </body>
 </html>
-
-
