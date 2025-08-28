@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -32,6 +32,8 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       line-height:1.4;
+      display: flex;
+      flex-direction: column;
     }
 
     /* HEADER */
@@ -83,7 +85,13 @@
       border-radius: var(--radius); 
       box-shadow: none; /* Sin sombra */
       min-height: 0; 
-      overflow: visible; 
+      overflow: visible;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
     }
     
     #main-content h2 {
@@ -94,7 +102,15 @@
       color: var(--white);
     }
 
-    .menu-principal { display:flex; flex-direction:column; gap:0.9rem; align-items:center; padding: 0.25rem; }
+    .menu-principal { 
+      display:flex; 
+      flex-direction:column; 
+      gap:0.9rem; 
+      align-items:center; 
+      padding: 0.25rem; 
+      max-width: 500px;
+      margin: auto;
+    }
     .actions { display:flex; gap:0.6rem; flex-wrap:wrap; justify-content:center; }
     .login-btn { background: var(--accent); color: var(--accent-text); border: none; padding: .6rem .9rem; border-radius: 8px; cursor: pointer; font-weight:700; }
 
@@ -131,7 +147,10 @@
 
     #notificacion { position: fixed; top: 28px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--accent-text); padding: 10px 20px; border-radius: 12px; font-weight:800; z-index: 2000; display:none; }
 
-    footer { margin-top: 1rem; }
+    footer { 
+      margin-top: auto; 
+      padding-top: 1rem; 
+    }
     .footer-content { display:flex; justify-content:center; gap: 0.6rem; align-items:center; padding: 0.9rem 1rem; color: var(--accent); background: transparent; border-top: 1px solid rgba(6,204,189,0.06); border-radius: 6px; }
 
     /* MEDIA QUERIES para responsividad */
@@ -416,7 +435,7 @@
 	{ id:86,nombre:"Paula Nieto FLASHBACK",tipo:"flashbackag25",imagen:"https://i.ibb.co/CpKWG8QJ/86-Paula-Nieto-Flashback.png"},
 	{ id:87,nombre:"Chapu Avila (1r Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/KxLfr0W1/87-Chapu-Avila-Split1-MOMENTS.png"},
 	{ id:88,nombre:"Jarumi Salazas (2o Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/p6F6j4QR/88-Jarumi-Salazar-Split2-MOMENTS.png"},
-	{ id:89,nombre:"Jibely Tangle (1r Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/ymYL5LVQ/89-Jibely-Tangle-Split1-MOMENTS.png"},
+	{ id:89,nombre:"Jibely Tagle (1r Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/VWQmFbXs/89-Jibely-Tangle-Split1-MOMENTS.png"},
 	{ id:90,nombre:"Nathaly Losada (1r Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/8ghth6vg/90-Nathaly-Losada-Split1-MOMENTS.png"},
 	{ id:91,nombre:"Paola Castañón (2n Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/0VpBjfgz/91-Paola-Casta-n-Split2-MOMENTS.png"},
 	{ id:92,nombre:"Vianey Blanquel (2n Split)",tipo:"queensmomentsag25",imagen:"https://i.ibb.co/6c8NYJpS/92-Vianey-Blanquel-Split2-MOMENTS.png"},
@@ -437,29 +456,63 @@
 
       // Códigos de creador (simplificados). Escribe solo el código, sin ";cantidad".
        const CREATOR_CODES = {
-        "izandhh": 1000,
-        "queensleague": 500,
-        "anndrwss": 5000,
-        "paulaanavas_gg": 5000,
-        "pinkgoldqueen": 5000,
-	"shio_aranda": 5000,
-	"pinkgoldqueen": 5000,
-	"elbarriofemfans": 5000,
-	"madri_es": 5000,
-	"oliverporcino": 5000,
-	"leax_19": 5000,
-	"perro_pio": 5000,
-	"xaviii2344": 5000,
-	"dobleboa": 5000,
-	"inforiversgg": 5000,
-	"wonderalisse2": 5000,
-	"fulooon": 5000,
-	"ibaigalle": 5000,
-	"andreasanchis_4": 5000,
-	"zonavillana": 5000,
-	"aroneey10": 5000,
-	"NarcisBoza": 5000,
-        "administratorizandhh15": 2000000
+    "izandhh": 10000,
+	"marserracanta": 10000,
+	"sronzero": 10000,
+	"alexgiro10": 10000,
+	"elena_beniitez": 10000,
+	"maaria_pi": 10000,
+	"jarumysg": 10000,
+	"pao.castanon23": 10000,
+	"nataly._avila_": 10000,
+	"nllop8": 10000,
+	"clarasanz__": 10000,
+	"vianeyblan7": 10000,
+	"lucu7": 10000,
+	"cintavilarroya8": 10000,
+	"saaraiismael": 10000,
+	"mapivd": 10000,
+	"albiitamee": 10000,
+	"claracarmona_": 10000,
+	"aroneey10": 10000,
+	"nikol_ramos.v": 10000,
+	"espe": 10000,
+	"ariadnasaezz": 10000,
+	"andreea_77": 10000,
+	"blencss": 10000,
+	"lidiarabassa_": 10000,
+	"andreachiniiii": 10000,
+	"anna.lucia.tan": 10000,
+	"roxtorres_": 10000,
+	"angy_vzqz_": 10000,
+	"meely.mg": 10000,
+	"julia_tm4": 10000,
+	"melanie.hernandez.13": 10000,
+	"paulanroy": 10000,
+	"dayancito_22": 10000,
+	"taglejibely": 10000,
+	"aliciahernandez.11": 10000,
+    "queensleague": 500,
+    "anndrwss": 10000,
+    "paulaanavas_gg": 10000,
+    "pinkgoldqueen_": 10000,
+	"shio_aranda": 10000,
+	"pinkgoldqueen": 10000,
+	"elbarriofemfans": 10000,
+	"madri_es": 10000,
+	"oliverporcino": 10000,
+	"leax_19": 10000,
+	"perro_pio": 10000,
+	"xaviii2344": 10000,
+	"dobleboa": 10000,
+	"inforiversgg": 10000,
+	"wonderalisse2": 10000,
+	"fulooon": 10000,
+	"ibaigalle": 10000,
+	"andreasanchis_4": 10000,
+	"zonavillana": 10000,
+	"NarcisBoza": 10000,
+    "administratorizandhh15": 2000000
       };
 
       // Probabilidades por tipo
