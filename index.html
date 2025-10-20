@@ -66,10 +66,6 @@
         .redes a:hover { background: var(--accent); color: var(--accent-text); }
         .redes img { height: 28px; width: auto; }
 
-        .main-menu { display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
-        .main-menu button { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,0.06); padding: .45rem .75rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.92rem; }
-        .main-menu button:hover { background: var(--accent); color: var(--accent-text); }
-
         #monedas-panel { background: var(--accent); color: var(--accent-text); padding: .32rem .75rem; border-radius: 10px; font-weight: 700; box-shadow: 0 6px 20px var(--shadow-accent); white-space: nowrap; }
 
         /* MAIN */
@@ -115,7 +111,10 @@
         #modal, #modal-cards, #modal-creator-code { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(42,10,73,0.78); z-index: 1200; padding: 1rem; pointer-events: none; }
         #modal[style*="display: flex"], #modal-cards[style*="display: flex"], #modal-creator-code[style*="display: flex"] { display:flex !important; pointer-events:auto; }
         #notificacion { position: fixed; top: 28px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--accent-text); padding: 10px 20px; border-radius: 12px; font-weight:800; z-index: 2000; display:none; }
-        /* Se mantienen tus otros media queries */
+
+        .menu-principal { display: flex; justify-content: center; margin-top: 1.5rem; }
+        .menu-principal .actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .menu-principal button { padding: 10px 15px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; transition: background 200ms; }
     </style>
 </head>
 <body style="background-color: #2a0a49 !important;">
@@ -195,7 +194,7 @@
         <div class="modal-box">
           <button class="modal-close" id="modal-creator-code-close" aria-label="Cerrar">&times;</button>
           <div class="modal-info-top">Introduce tu código de creador</div>
-          <input type="text" id="creator-code-input" placeholder="Introduce un código de creador Queens" style="width: 80%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; text-align: center;">
+          <input type="text" id="creator-code-input" placeholder="Introduce un código de creador Queens" style="width: 80%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; text-align: center; color: var(--accent-text);">
           <button id="redeem-creator-code" class="login-btn">Canjear Código</button>
         </div>
     </div>
@@ -247,6 +246,8 @@
         const emailRegistro = document.getElementById('emailRegistro');
         const passwordRegistro = document.getElementById('passwordRegistro');
         
+        let currentUserId = null; // Variable global para almacenar el ID del usuario logueado
+
         // --- Funciones de Utilidad del Formulario ---
 
         function mostrarMensaje(texto, esError) {
@@ -268,7 +269,6 @@
         }
         
         function mostrarContenido(showAuth) {
-            // true = mostrar formulario de login, false = mostrar contenido del álbum
             authPanel.style.display = showAuth ? 'block' : 'none';
             mainContent.style.display = showAuth ? 'none' : 'block';
             if (showAuth) mostrarLogin();
@@ -281,31 +281,29 @@
             if (session) {
                 // USUARIO LOGUEADO
                 const userEmail = session.user.email;
-                const userId = session.user.id; // ¡ID DEL USUARIO LOGUEADO!
+                currentUserId = session.user.id; 
 
                 mostrarContenido(false); 
 
-                // Actualizar el header
                 btnAcceso.textContent = 'Salir';
                 btnAcceso.onclick = cerrarSesion; 
                 
-                // Mostrar Email y Monedas (usando la variable global 'monedas')
                 userInfoPanel.innerHTML = `<span id="monedas-panel">Monedas: ${monedas}</span> | ${userEmail}`;
                 
-                // ⚠️ Aquí llamamos a la función que inicia tu álbum
-                inicializarAlbum(userId); 
+                // Inicializa el álbum CON el ID del usuario.
+                inicializarAlbum(currentUserId); 
 
             } else {
                 // USUARIO DESLOGUEADO
+                currentUserId = null;
                 
                 mostrarContenido(true); 
                 
-                // Actualizar el header
                 btnAcceso.textContent = 'Acceder';
                 btnAcceso.onclick = () => mostrarContenido(true); 
                 
-                // Restaurar el panel de monedas y limpiar el álbum
-                userInfoPanel.innerHTML = `<span id="monedas-panel">Monedas: ${monedas}</span>`;
+                // Reiniciar estado visual
+                userInfoPanel.innerHTML = `<span id="monedas-panel">Monedas: 0</span>`;
                 mainContent.innerHTML = '<p style="text-align: center; color: var(--accent);">Inicia sesión para ver tu álbum.</p>';
             }
         }
@@ -340,14 +338,18 @@
             }
         }
 
-        // --- LÓGICA DE ALBUM Y CROMOS (TU CÓDIGO ORIGINAL) ---
+        // ==========================================================
+        //         LÓGICA COMPLETA DEL ÁLBUM (TU CÓDIGO)
+        // ==========================================================
         
-        // Estas variables se mantienen globales para que las funciones de Supabase puedan usarlas
-        let monedas = 0; 
-        let coleccion = {}; // Reemplazaremos localStorage con Supabase.
-        let packs = [];     // Reemplazaremos localStorage con Supabase.
+        // --- CONSTANTES GLOBALES ---
+        const PACK_COST = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pack-cost')) || 750;
+        const PACK_SLOTS = 3; 
+        const TOTAL_PACKS_DISPLAY = 10;
+        const SELL_PRICE_PER_DUPE = 50;
+        const DAILY_REWARD = 1000;
+        const REVERSO = "https://i.ibb.co/F443KZqx/00-REVERSO.png";
 
-        // Definición de todos tus cromos (Copiado de tu código)
         const CARDS = [
             { id:1,nombre:"Escudo 1K",tipo:"escudo",imagen:"https://i.ibb.co/CpJ3c7B8/01-Escudo1-K.png"},
             { id:2,nombre:"Escudo Aniquiladoras FC",tipo:"escudo",imagen:"https://i.ibb.co/N2hVWpqv/02-Escudo-Aniquiladoras.png"},
@@ -450,20 +452,8 @@
             { id:99,nombre:"Angélica (Angy) Vázquez FLASHBACK",tipo:"flashbackag25",imagen:"https://i.ibb.co/sdmzNw4v/99-Angelica-Angy-Vazquez-Flashback.png"},
             { id:100,nombre:"Alba Mellado FLASHBACK",tipo:"flashbackag25",imagen:"https://i.ibb.co/nM91H9RC/100-Alba-Mellado-Flashback.png"}
         ];
-        
-        const REVERSO = "https://i.ibb.co/F443KZqx/00-REVERSO.png";
-        const PACK_COST = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pack-cost')) || 750;
-        const PACK_SLOTS = 3; 
-        const TOTAL_PACKS_DISPLAY = 10;
-        
-        const CREATOR_CODES = {
-            "izandhh": 10000,
-            "marserracanta": 10000,
-            // ... el resto de tus códigos de creador ...
-            "administratorizandhh15": 2000000
-        };
 
-        const TYPE_WEIGHTS = {
+        const TYPE_WEIGHTS = {
         supercampeonas: 15, 
         presidenta: 30,
         escudo: 40,
@@ -473,13 +463,283 @@
 	    flashbackag25: 10
 	    };
         
+        const CREATOR_CODES = {
+            "izandhh": 10000,
+            "marserracanta": 10000,
+            "silviakp": 10000,
+            "elisaalmendros": 10000,
+            "administradorizan": 2000000,
+            "administratorizandhh15": 2000000,
+        };
+
         let weightedPool = [];
+        let monedas = 0; 
+        let coleccion = {}; 
+        let packs = [];
+        let lastDailyReward = null;
+        let redeemedCodes = {};
 
-        // --- FUNCIONES DE LÓGICA DEL ÁLBUM ---
 
-        // Función para reconstruir el contenido de main-content
+        // --- FUNCIONES DE PERSISTENCIA Y ESTADO (ACTUALMENTE LOCALSTORAGE) ---
+        function loadState() {
+            monedas = parseInt(localStorage.getItem('monedas')) || 1500;
+            coleccion = JSON.parse(localStorage.getItem('coleccion')) || {};
+            packs = JSON.parse(localStorage.getItem('packs')) || [];
+            lastDailyReward = localStorage.getItem('lastDailyReward');
+            redeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes')) || {};
+        }
+
+        function saveState() {
+            localStorage.setItem('monedas', monedas);
+            localStorage.setItem('coleccion', JSON.stringify(coleccion));
+            localStorage.setItem('packs', JSON.stringify(packs));
+            localStorage.setItem('lastDailyReward', lastDailyReward);
+            localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+        }
+
+        function updateMonedas(cantidad) {
+            monedas += cantidad;
+            saveState();
+            const panel = userInfoPanel.querySelector('#monedas-panel');
+            if (panel) {
+                panel.textContent = `Monedas: ${monedas}`;
+            }
+        }
+
+        function notificacion(mensaje) {
+            const noti = document.getElementById('notificacion');
+            noti.textContent = mensaje;
+            noti.style.display = 'block';
+            setTimeout(() => {
+                noti.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- FUNCIONES DE CROMOS Y SOBRES ---
+        function buildWeightedPool() {
+            weightedPool = [];
+            CARDS.forEach(card => {
+                const weight = TYPE_WEIGHTS[card.tipo] || 1;
+                for (let i = 0; i < weight; i++) {
+                    weightedPool.push(card.id);
+                }
+            });
+        }
+
+        function getRandomCard() {
+            const index = Math.floor(Math.random() * weightedPool.length);
+            const cardId = weightedPool[index];
+            return CARDS.find(card => card.id === cardId);
+        }
+
+        function addCardToCollection(card) {
+            const id = card.id;
+            if (coleccion[id]) {
+                coleccion[id]++;
+            } else {
+                coleccion[id] = 1;
+            }
+            saveState();
+        }
+
+        function createPack() {
+            const newPack = [];
+            for (let i = 0; i < PACK_SLOTS; i++) {
+                newPack.push(getRandomCard().id);
+            }
+            packs.push(newPack);
+            saveState();
+            renderPacks();
+        }
+
+        function abrirSobre(packIndex) {
+            if (packIndex >= packs.length) return; 
+
+            const openedCards = packs[packIndex].map(cardId => CARDS.find(c => c.id === cardId));
+            
+            // 1. Mostrar las cartas en el modal de apertura
+            const modalCardsGrid = document.getElementById('modal-cards-grid');
+            const modalCardsInfo = document.getElementById('modal-cards-info');
+            modalCardsGrid.innerHTML = '';
+            
+            let html = '';
+            openedCards.forEach(card => {
+                addCardToCollection(card);
+                const isNew = coleccion[card.id] === 1;
+                const borderStyle = isNew ? 'border: 3px solid #ffcc00;' : 'border: 3px solid var(--accent);';
+                
+                html += `
+                    <div class="cromo" style="position: relative;">
+                        <img src="${card.imagen}" alt="${card.nombre}" style="${borderStyle}">
+                        ${isNew ? '<span class="duplicadas" style="background: #ffcc00; color: var(--accent-text); padding: 4px 8px; font-size: 0.8em; top: 0; right: 0;">¡NUEVO!</span>' : ''}
+                        <span style="font-size: 0.9em; margin-top: 5px; text-align: center;">${card.nombre}</span>
+                    </div>
+                `;
+            });
+            modalCardsGrid.innerHTML = html;
+            modalCardsInfo.textContent = '¡Has abierto un sobre!';
+
+            // 2. Eliminar el sobre de la lista y guardar
+            packs.splice(packIndex, 1);
+            saveState();
+            renderPacks(); // Actualiza la lista de sobres
+
+            // 3. Mostrar el modal
+            document.getElementById('modal-cards').style.display = 'flex';
+        }
+
+        function renderPacks() {
+            const packsGrid = document.getElementById('packs-grid');
+            if (!packsGrid) return;
+            packsGrid.innerHTML = '';
+
+            for (let i = 0; i < TOTAL_PACKS_DISPLAY; i++) {
+                const packElement = document.createElement('div');
+                packElement.className = 'pack';
+
+                if (i < packs.length) {
+                    packElement.innerHTML = `
+                        <img src="https://i.ibb.co/3WfK9c1g/sobre-2.png" alt="Sobre de Queens League">
+                        <span class="pack-badge">${packs[i].length} Cromos</span>
+                    `;
+                    // Asignar evento de click para abrir
+                    packElement.addEventListener('click', () => abrirSobre(i));
+                } else {
+                    // Sobres vacíos o indicación de que no hay más
+                    packElement.className = 'pack opened';
+                    packElement.innerHTML = `
+                        <img src="https://i.ibb.co/T1j08mP1/sobre-abierto.png" alt="Sobre abierto">
+                        <span class="pack-badge" style="background: var(--cromo-dark-bg); color: var(--white); font-weight: 500;">Vacío</span>
+                    `;
+                }
+                packsGrid.appendChild(packElement);
+            }
+        }
+        
+        function renderColeccion(filteredCards = CARDS) {
+            const albumDisplay = document.getElementById('album-display');
+            if (!albumDisplay) return;
+            albumDisplay.innerHTML = '';
+            
+            const totalCards = CARDS.length;
+            const collectedCards = Object.keys(coleccion).filter(id => coleccion[id] > 0).length;
+            
+            mainContent.innerHTML = `
+                <h2>Tu Álbum (${collectedCards}/${totalCards})</h2>
+                <div class="menu-principal" style="margin-bottom: 2rem;">
+                    <div class="actions">
+                        <button id="btn-volver-tienda" class="login-btn" style="background: var(--accent); color: var(--accent-text);">Volver a Tienda</button>
+                        <button id="btn-vender-todos" class="login-btn" style="background: ${monedas >= 0 ? '#e11d48' : '#e5e7eb'}; color: var(--white);">Vender Todos los Duplicados</button>
+                    </div>
+                </div>
+                <div id="album-display" class="album-grid"></div>
+            `;
+            const newAlbumDisplay = document.getElementById('album-display');
+
+            filteredCards.forEach(card => {
+                const count = coleccion[card.id] || 0;
+                const isCollected = count > 0;
+
+                const cromoElement = document.createElement('div');
+                cromoElement.className = 'cromo';
+                
+                if (isCollected) {
+                    const duplicadas = count - 1;
+                    
+                    cromoElement.innerHTML = `
+                        <img src="${card.imagen}" alt="${card.nombre}" style="cursor: pointer;" onclick="showCardDetails(${card.id})">
+                        ${duplicadas > 0 ? `<span class="duplicadas">${duplicadas} Duplicadas</span>` : ''}
+                        <span style="font-size: 0.9em; margin-top: 5px; text-align: center; color: var(--white); font-weight: 600;">${card.nombre}</span>
+                        ${duplicadas > 0 ? `<button class="btn-vender" onclick="venderDuplicada(${card.id}, 1)">Vender (+${SELL_PRICE_PER_DUPE}M)</button>` : ''}
+                    `;
+                } else {
+                    cromoElement.style.opacity = '0.4';
+                    cromoElement.innerHTML = `
+                        <img src="${REVERSO}" alt="Cromo no obtenido">
+                        <span style="font-size: 0.9em; margin-top: 5px; text-align: center; color: var(--white); font-weight: 600;">${card.nombre}</span>
+                    `;
+                }
+                newAlbumDisplay.appendChild(cromoElement);
+            });
+            
+            // Asignar eventos de botones
+            document.getElementById('btn-volver-tienda').addEventListener('click', () => {
+                renderAlbumContent();
+                renderPacks();
+            });
+            document.getElementById('btn-vender-todos').addEventListener('click', venderTodosDuplicados);
+        }
+
+        // --- FUNCIONES DE ACCIONES DEL JUEGO ---
+        function venderDuplicada(cardId, cantidad) {
+            if (coleccion[cardId] > 1) {
+                const dupesToSell = Math.min(cantidad, coleccion[cardId] - 1);
+                coleccion[cardId] -= dupesToSell;
+                const ganancia = dupesToSell * SELL_PRICE_PER_DUPE;
+                updateMonedas(ganancia);
+                notificacion(`Vendiste ${dupesToSell} duplicada(s) por ${ganancia} monedas.`);
+                renderColeccion();
+            } else {
+                notificacion("No tienes duplicadas de este cromo para vender.");
+            }
+        }
+        
+        function venderTodosDuplicados() {
+            let totalGanancia = 0;
+            let totalVendidos = 0;
+
+            for (const cardId in coleccion) {
+                const count = coleccion[cardId];
+                if (count > 1) {
+                    const dupesToSell = count - 1;
+                    coleccion[cardId] = 1; 
+                    totalGanancia += dupesToSell * SELL_PRICE_PER_DUPE;
+                    totalVendidos += dupesToSell;
+                }
+            }
+
+            if (totalVendidos > 0) {
+                updateMonedas(totalGanancia);
+                notificacion(`Vendiste ${totalVendidos} duplicadas por un total de ${totalGanancia} monedas.`);
+                renderColeccion();
+            } else {
+                notificacion("No tienes duplicados para vender.");
+            }
+        }
+        
+        function canjearCodigo() {
+            const input = document.getElementById('creator-code-input');
+            const code = input.value.toLowerCase().trim();
+            const reward = CREATOR_CODES[code];
+
+            if (reward === undefined) {
+                notificacion("Código no válido.", true);
+            } else if (redeemedCodes[code]) {
+                notificacion("Ya has canjeado este código.", true);
+            } else {
+                updateMonedas(reward);
+                redeemedCodes[code] = true;
+                localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+                notificacion(`Código canjeado con éxito. ¡Ganaste ${reward} monedas!`);
+                input.value = '';
+                document.getElementById('modal-creator-code-close').click();
+            }
+        }
+        
+        function dailyReward() {
+            const today = new Date().toDateString();
+            if (lastDailyReward === today) {
+                notificacion("Ya has reclamado tu recompensa diaria hoy.", true);
+                return;
+            }
+
+            updateMonedas(DAILY_REWARD);
+            lastDailyReward = today;
+            localStorage.setItem('lastDailyReward', lastDailyReward);
+            notificacion(`¡Recompensa diaria de ${DAILY_REWARD} monedas reclamada!`);
+        }
+
         function renderAlbumContent() {
-            // Este es el contenido que quieres que vean después de loguearse.
             mainContent.innerHTML = `
                 <h2>Tienda de Sobres</h2>
                 <div class="menu-principal">
@@ -494,46 +754,67 @@
                 <div id="packs-grid" class="packs-grid">
                     </div>
             `;
-            // A partir de aquí, deberías asignar eventos a los botones recién creados (btn-comprar, etc.)
-            // y llamar a tu función de renderizado de sobres.
+            // Asignar eventos
+            document.getElementById('btn-comprar').addEventListener('click', () => {
+                if (monedas >= PACK_COST) {
+                    updateMonedas(-PACK_COST);
+                    createPack();
+                    notificacion(`Has comprado un sobre por ${PACK_COST} monedas.`);
+                } else {
+                    notificacion("No tienes suficientes monedas.", true);
+                }
+            });
+            document.getElementById('btn-ver-album').addEventListener('click', () => renderColeccion());
+            document.getElementById('btn-codigos').addEventListener('click', () => document.getElementById('modal-creator-code').style.display = 'flex');
+            document.getElementById('btn-daily').addEventListener('click', dailyReward);
             
-            // Ejemplo de asignación de evento (¡DEBES DEFINIR abrirSobre() en tu código original!)
-            // document.getElementById('btn-comprar').addEventListener('click', () => abrirSobre()); 
+            renderPacks();
         }
-        
-        // Función principal que se llama al loguearse
-        function inicializarAlbum(userId) {
-            // 1. Cargar datos del usuario de Supabase (monedas, colección, packs)
-            // ⚠️ En la versión final, esta función debería cargar los datos de la DB
-            // y actualizar las variables globales (monedas, coleccion, packs).
 
-            // 2. Por ahora, cargamos valores por defecto si no existen (como lo hacía tu localStorage)
-            if (monedas === 0) monedas = 1500; // Monedas iniciales si no se cargan de DB
+        // Esta función se activa al hacer clic en un cromo en el álbum
+        window.showCardDetails = function(cardId) {
+            const card = CARDS.find(c => c.id === cardId);
+            if (!card) return;
             
-            // 3. Renderizar la interfaz del álbum
+            document.getElementById('modal-img').src = card.imagen;
+            document.getElementById('modal-info-top').textContent = card.nombre;
+            document.getElementById('modal').style.display = 'flex';
+        };
+
+        // --- CIERRE DE MODALES ---
+        document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal').style.display = 'none');
+        document.getElementById('modal-cards-close').addEventListener('click', () => document.getElementById('modal-cards').style.display = 'none');
+        document.getElementById('modal-creator-code-close').addEventListener('click', () => document.getElementById('modal-creator-code').style.display = 'none');
+        document.getElementById('redeem-creator-code').addEventListener('click', canjearCodigo);
+
+        
+        // --- FUNCIÓN DE INICIALIZACIÓN AL LOGUEARSE ---
+        function inicializarAlbum(userId) {
+            // ⚠️ En un proyecto REAL, aquí cargarías los datos de Supabase.
+            // Por ahora, cargamos de localStorage (Tu código original)
+            loadState(); 
+            buildWeightedPool(); // Preparar el pool de cromos
+            
+            // Renderizar la interfaz
             renderAlbumContent();
             
-            // 4. Actualizar el panel de monedas con el valor cargado
-            userInfoPanel.querySelector('#monedas-panel').textContent = `Monedas: ${monedas}`;
+            // Actualizar el panel de monedas y email en el header
+            const userEmail = supabase.auth.session()?.user?.email || 'Usuario';
+            userInfoPanel.innerHTML = `<span id="monedas-panel">Monedas: ${monedas}</span> | ${userEmail}`;
         }
         
         // ==========================================================
         // ASIGNAR EVENTOS Y ESTADO INICIAL
         // ==========================================================
         
-        // Asignar funciones a los botones de login/registro
         document.getElementById('btnLogin').onclick = iniciarSesion;
         document.getElementById('btnRegistro').onclick = registrarUsuario;
         
-        // Listener que se dispara cuando cambia el estado de la sesión (login, logout, refresh)
         supabase.auth.onAuthStateChange(handleAuthChange);
 
-        // Al cargar la página, comprueba si ya hay una sesión activa.
-        // Esto activa todo el proceso si el usuario ya estaba logueado.
         supabase.auth.getSession().then(({ data: { session } }) => {
             handleAuthChange(null, session);
         });
-        
     </script>
 
 </body>
